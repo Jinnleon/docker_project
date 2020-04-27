@@ -1,0 +1,38 @@
+#!/usr/bin/env php
+
+<?php
+
+foreach (
+    [
+        __DIR__ . '/../../../../vendor/autoload.php',
+        __DIR__ . '/../../autoload.php',
+        __DIR__ . '/../vendor/autoload.php',
+        __DIR__ . '/vendor/autoload.php',
+    ] as $file) {
+    if (file_exists($file)) {
+        require $file;
+
+        break;
+    }
+}
+
+if (file_exists($appAutoloader = getcwd() . '/vendor/autoload.php')) {
+    require $appAutoloader;
+}
+
+use Symfony\Component\Console\Application;
+use Tighten\Commands\FormatCommand;
+use Tighten\Commands\LintCommand;
+use function Tighten\version;
+
+$application = new Application(
+        'tlint',
+        version()
+);
+
+$lintCommand = new LintCommand;
+$application->add($lintCommand);
+$application->add(new FormatCommand);
+$application->setDefaultCommand($lintCommand->getName());
+
+$application->run();
